@@ -13,6 +13,8 @@ titers = "data/{lineage}/{center}_{passage}_{assay}_titers.tsv"
 
 path_to_fauna = '../fauna'
 localrules: download_sequences, download_titers, parse
+
+workflow.global_resources.setdefault("concurrent_fauna_downloads", 2)
 #
 # Define titer data sets to be used.
 #
@@ -47,6 +49,8 @@ rule download_sequences:
         sequences = "data/{lineage}/raw_{segment}.fasta"
     params:
         fasta_fields = config["fauna_fasta_fields"],
+    resources:
+        concurrent_fauna_downloads = 1
     conda: "../envs/nextstrain.yaml"
     benchmark:
         "benchmarks/download_sequences_{lineage}_{segment}.txt"
@@ -71,6 +75,8 @@ rule download_titers:
         dbs = _get_tdb_databases,
         assays = _get_tdb_assays,
         virus_passage_category=_get_virus_passage_category,
+    resources:
+        concurrent_fauna_downloads = 1
     conda: "../envs/nextstrain.yaml"
     benchmark:
         "benchmarks/download_titers_{lineage}_{center}_{passage}_{assay}.txt"
